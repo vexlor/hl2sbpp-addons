@@ -1,0 +1,6 @@
+const grid=document.querySelector('#grid'), search=document.querySelector('#search'), status=document.querySelector('#status');
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const size=n=>{n=Number(n||0);if(!n)return '—';const u=['Б','КБ','МБ','ГБ'];let i=0;while(n>=1024&&i<u.length-1){n/=1024;i++}return `${n.toFixed(i?1:0)} ${u[i]}`};
+function card(a){return `<a class="card" href="/addon/${encodeURIComponent(a.id)}"><div class="cover">${a.cover_image?`<img src="${esc(a.cover_image)}" alt="">`:'<div class="placeholder">HL2SBPP</div>'}</div><div class="pad"><span class="tag">${esc(a.category)}</span><h2>${esc(a.title)}</h2><div class="author">${esc(a.author||'Unknown')}</div><p>${esc(a.description||'')}</p><footer>☆ ${esc(a.likes||0)} <span>${esc(a.downloads||0)} скач.</span></footer></div></a>`}
+async function load(){status.textContent='Загрузка...';try{const q=search.value.trim();const r=await fetch('/api/addons'+(q?'?q='+encodeURIComponent(q):''));const d=await r.json();if(!r.ok)throw Error(d.error||'Ошибка');grid.innerHTML=(d.addons||[]).map(card).join('')||'<div class="empty">Аддоны не найдены.</div>';status.textContent=''}catch(e){status.textContent=e.message}}
+search.addEventListener('input',()=>{clearTimeout(window.t);window.t=setTimeout(load,250)});load();
